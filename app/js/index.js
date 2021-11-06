@@ -3,7 +3,7 @@
 // import { call } from 'file-loader';
 // /* js */
 // import $ from 'jquery';
-// import { log, logTitle } from 'logger';
+ import { log, logTitle } from 'logger';
 // /* your imports */
 // //default import are see in case of class and obj. exports/import single value
 // import Animal from './Animal';
@@ -12,35 +12,113 @@
 // import {add} from './math'; // import only add
 // logTitle('Title')
 // /* coding examples */
-import { coroutine as co} from "bluebird";
 
-//Generators with Promise - avoids call back
+import { coroutine as co} from "bluebird"; // used to yield promise - without this generatos don't understand it has to yield promise
+import { get } from 'jquery';
+//Async await(waits for the promise response) - no need to use any library such as bluebird is used for generators with promises
+// 1. yield promise using keyword await
+// 2. returns promise
+// 3. no need to use any additional library like bluebird. It's built in feature
+// const bcAPIAsync = async function (){
+//     const bcAPIFetch = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json'); // similar to using yield from generator
+//     const outputAPIv2 = await bcAPIFetch.json();
+//     return outputAPIv2;
+    
+
+// }
+// bcAPIAsync().then(resp =>{
+//     console.log("async await _" + resp.bpi.USD.rate_float);
+// }).catch(error => console.log(error))
+
+
+
+//Generators with Promise - avoids nested call back
+//makes code clean 
+
+// const getRandomUsers = co(function*(n){
+//     const fetchUserAPI =yield fetch(`https://randomuser.me/api/?results=${n}`);
+//     const dataRetrieveAPI = yield fetchUserAPI.json();
+//     return dataRetrieveAPI;
+// })
+
+// getRandomUsers(10).then(randomusers =>{
+//    // console.log("randomusers _ " + JSON.stringify(randomusers));
+//     randomusers.results.forEach(user => {
+//         //console.log(user)
+//         //console.log("user.name.first _" + user.name.first)
+//         const userFirstName = user.name.first;
+//         const {email } = user;
+//         log(userFirstName + "---" + email);
+//         //const { user.first, email} = user;
+//         //log(`${first} _ ${email}`);
+//     })
+// }).catch(error => console.log("Errorssss: " + error));
+
+//
+
+//changing the above generators with promised code into async await
+// const getListOfRandomUsers = async function(n){
+//     const retrieveRandomUsersAPI = await fetch(`http//randomuser.me/api/?results=${n}`);
+//     const convertJsonTOJSObj = await retrieveRandomUsersAPI.json();
+//     convertJsonTOJSObj.results.forEach(result =>{
+//         const userFirstName = result.name.first;
+//         const {email } = result;
+//         log("Async Await RandomUserAPI =>"+ userFirstName + "---" + email);
+//     })
+//     return convertJsonTOJSObj;
+// }
+
+// getListOfRandomUsers(4);
+
+//ERROR HANDLING - to catch Error in async await use try catch
+
+const getListOfRandomUsers = async function(n){
+    try {
+        const retrieveRandomUsersAPI = await fetch(`https://randomuser.me/api/?results=${n}`);
+        const convertJsonTOJSObj = await retrieveRandomUsersAPI.json();
+        convertJsonTOJSObj.results.forEach(result =>{
+            const userFirstName = result.name.first;
+            const {email } = result;
+            log("Async Await RandomUserAPI =>"+ userFirstName + "---" + email);
+        })
+        return convertJsonTOJSObj;
+    } catch (error) {
+        console.log(error);
+    }
+   
+}
+
+getListOfRandomUsers(4);
+
+//---- ERROR HANDLING -to catch Error in async await use try catch END
+
+
 
 //Bitcoin API - Using gnerators with promise
 //no need to do .then() to received output from a promise
 // it will be stored in var like simply storing int a =2;
 //then only we need to invoke it
-const generatorWithPromise = co(function*(){
-    const bcAPI = yield fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-    const outputAPI = yield bcAPI.json();
-    return outputAPI;
-})
+// const generatorWithPromise = co(function*(){
+//     const bcAPI = yield fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+//     const outputAPI = yield bcAPI.json();
+//     return outputAPI;
+// })
 
-generatorWithPromise().then(resp =>{
-    console.log(resp.bpi.USD.rate_float);
-}).catch(error => console.log(error))
+// generatorWithPromise().then(resp =>{
+//     console.log(resp.bpi.USD.rate_float);
+// }).catch(error => console.log(error))
 
-//Generators
+// //Generators
 
-const numberGenerator = function* (){
-     yield 'shisab';
-     yield 2021;
-}
-const generatorVar= numberGenerator();
+// const numberGenerator = function* (){
+//      yield 'shisab';
+//      yield 2021;
+// }
+// const generatorVar= numberGenerator();
 
-console.log('Genetor -> '+ generatorVar.next().value);
+// console.log('Genetor -> '+ generatorVar.next().value);
 
-console.log('Genetor Year -> '+ generatorVar.next().value);
+// console.log('Genetor Year -> '+ generatorVar.next().value);
 
 
 
@@ -78,19 +156,19 @@ console.log('Genetor Year -> '+ generatorVar.next().value);
 
 //Apply for each loop and obj destruction tomorrow sunday NOV 1st
 //BICOIN API
-const bitcoinAPI = fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-//console.log(` BITCOIN _________-------___> ${bitcoinAPI}`);
-bitcoinAPI.then(response =>{
-    response.json().then(res =>{
-        console.log('-------DATA FROM BITCOIN API--------')
-         //const bitcoinRateNow =JSON.stringify(res.bpi.USD.rate_float);
-        //console.log(`Bitcoin price today: $${bitcoinRateNow}`)
-        const {bpi : { USD: {rate_float: bitcoinRateNow}}  }= res; //same thing as above but using obj destructuring
-        console.log(`Bitcoin price today: $${bitcoinRateNow}`)
-        console.log('-------END OF BITCOIN API DATA--------')
+// const bitcoinAPI = fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+// //console.log(` BITCOIN _________-------___> ${bitcoinAPI}`);
+// bitcoinAPI.then(response =>{
+//     response.json().then(res =>{
+//         console.log('-------DATA FROM BITCOIN API--------')
+//          //const bitcoinRateNow =JSON.stringify(res.bpi.USD.rate_float);
+//         //console.log(`Bitcoin price today: $${bitcoinRateNow}`)
+//         const {bpi : { USD: {rate_float: bitcoinRateNow}}  }= res; //same thing as above but using obj destructuring
+//         console.log(`Bitcoin price today: $${bitcoinRateNow}`)
+//         console.log('-------END OF BITCOIN API DATA--------')
        
-    })
-})
+//     })
+// })
 //END OF BITCOIN API
 
 
